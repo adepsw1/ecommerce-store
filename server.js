@@ -56,7 +56,7 @@ app.get('*', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🛒 Your Brand running at http://localhost:${PORT}`);
-  console.log(`📊 Admin Panel at http://localhost:${PORT}/admin/dashboard.html`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🛒 Your Brand running on port ${PORT}`);
+  console.log(`📊 Admin Panel at /admin/dashboard.html`);
 });
