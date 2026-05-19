@@ -85,7 +85,7 @@ function productCard(p) {
     <div class="product-card">
       <a href="/product.html?slug=${encodeURIComponent(p.slug)}">
         <div class="product-image">
-          <img src="${escapeHtml(p.image || 'https://via.placeholder.com/400')}" alt="${escapeHtml(p.name)}" loading="lazy">
+          <img src="${escapeHtml(p.image || 'https://via.placeholder.com/400')}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400?text=No+Image'">
           <div class="product-badge">
             ${discount > 0 ? '<span class="badge-sale">' + discount + '% OFF</span>' : ''}
             ${p.featured ? '<span class="badge-hot">Popular</span>' : ''}

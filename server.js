@@ -21,7 +21,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://accounts.google.com", "https://apis.google.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       frameSrc: ["https://js.stripe.com", "https://accounts.google.com"],
-      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://via.placeholder.com", "https://lh3.googleusercontent.com"],
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://plus.unsplash.com", "https://via.placeholder.com", "https://lh3.googleusercontent.com", "https://*.unsplash.com"],
       connectSrc: ["'self'", "https://api.stripe.com", "https://accounts.google.com", "https://api.postalpincode.in"]
     }
   }
