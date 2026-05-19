@@ -215,7 +215,8 @@ input, select, textarea { font-family: inherit; }
 
 /* ============= HERO SECTION ============= */
 .hero {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, #0a3d62 100%);
+  background: linear-gradient(135deg, rgba(26,26,46,0.88) 0%, rgba(15,52,96,0.85) 50%, rgba(10,61,98,0.9) 100%),
+    url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1600&q=80') center/cover no-repeat;
   color: white;
   padding: 80px 0;
   position: relative;
