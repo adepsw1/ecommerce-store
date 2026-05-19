@@ -120,9 +120,12 @@
         return;
       }
 
+      // Use redirect mode (works on mobile and desktop)
+      const origin = window.location.origin;
       google.accounts.id.initialize({
         client_id: config.googleClientId,
-        callback: handleGoogleResponse,
+        ux_mode: 'redirect',
+        login_uri: origin + '/api/auth/google/redirect',
         auto_select: false
       });
 
@@ -132,26 +135,10 @@
       );
     })();
 
-    async function handleGoogleResponse(response) {
-      document.getElementById('googleBtnContainer').style.display = 'none';
-      document.getElementById('loginStatus').style.display = 'block';
-
-      const res = await api('/api/auth/google', 'POST', { credential: response.credential });
-
-      if (res.error) {
-        showToast(res.error, 'error');
-        document.getElementById('googleBtnContainer').style.display = 'flex';
-        document.getElementById('loginStatus').style.display = 'none';
-        return;
-      }
-
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('user', JSON.stringify(res.user));
-      showToast('Welcome, ' + res.user.name + '!', 'success');
-
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 500);
+    // Handle error from redirect flow
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error')) {
+      showToast('Google sign-in failed. Please try again.', 'error');
     }
   </script>
 </body>

@@ -37,7 +37,51 @@ function verifyGoogleToken(idToken) {
   });
 }
 
-// Google Sign-In
+// Google Sign-In redirect handler (for mobile)
+router.post('/google/redirect', async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) {
+    return res.redirect('/login.html?error=missing_credential');
+  }
+
+  try {
+    const payload = await verifyGoogleToken(credential);
+    const { email, name, picture, sub: googleId } = payload;
+
+    if (!email) {
+      return res.redirect('/login.html?error=no_email');
+    }
+
+    const db = getDb();
+    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+
+    if (!user) {
+      const result = db.prepare(
+        'INSERT INTO users (name, email, password, avatar, google_id) VALUES (?, ?, ?, ?, ?)'
+      ).run(name || email.split('@')[0], email, '', picture || null, googleId);
+      user = { id: result.lastInsertRowid, name: name || email.split('@')[0], email, role: 'customer', phone: null };
+    } else {
+      if (!user.google_id) {
+        db.prepare('UPDATE users SET google_id = ?, avatar = COALESCE(avatar, ?) WHERE id = ?')
+          .run(googleId, picture || null, user.id);
+      }
+    }
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    // Redirect to a page that stores the token in localStorage
+    const userData = JSON.stringify({ id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone || null });
+    res.send(`<!DOCTYPE html><html><head><title>Signing in...</title></head><body><script>
+      localStorage.setItem('token', '${token}');
+      localStorage.setItem('user', ${JSON.stringify(userData)});
+      window.location.href = '/';
+    </script></body></html>`);
+  } catch (err) {
+    console.error('Google redirect auth error:', err.message);
+    return res.redirect('/login.html?error=invalid_credential');
+  }
+});
+
+// Google Sign-In (API for popup mode)
 router.post('/google', async (req, res) => {
   const { credential } = req.body;
   if (!credential) {
