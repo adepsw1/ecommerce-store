@@ -8,6 +8,9 @@ const { initDatabase } = require('./database/init');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (needed for Render/reverse proxy deployments)
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet({
   contentSecurityPolicy: {
