@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Brand - Premium Art Supplies & Handcrafted Treasures</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <span><i class="fas fa-truck"></i> Free shipping on orders over &#8377;999</span>
+      <span><i class="fas fa-paint-brush"></i> Handpicked Art Supplies for Every Creator</span>
+      <span><i class="fas fa-phone"></i> +91 93739 25938</span>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo"><i class="fas fa-store logo-icon"></i> Your<span>Brand</span></a>
+      <div class="nav-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search art supplies, paints, brushes..." onkeyup="handleSearch(event)">
+      </div>
+      <div class="nav-actions">
+        <a href="/cart.html" class="nav-btn" title="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="badge" id="cartBadge" style="display:none">0</span>
+        </a>
+        <div id="authButtons">
+          <a href="/login.html" class="btn btn-outline btn-sm">Sign In</a>
+        </div>
+        <div id="userMenu" style="display:none">
+          <div class="nav-btn" onclick="toggleUserDropdown()" style="cursor:pointer">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div id="userDropdown" class="user-dropdown hidden" style="position:absolute;top:65px;right:24px;background:white;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,0.15);padding:8px;min-width:220px;z-index:1001;border:1px solid #e5e7eb">
+            <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;margin-bottom:4px">
+              <div style="font-weight:600;font-size:14px" id="userName"></div>
+              <div style="font-size:12px;color:#9ca3af" id="userEmail"></div>
+            </div>
+            <a href="/orders.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;font-size:14px;color:#374151;transition:all 0.2s" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'"><i class="fas fa-box"></i> My Orders</a>
+            <a href="/profile.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;font-size:14px;color:#374151;transition:all 0.2s" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'"><i class="fas fa-user"></i> Profile</a>
+            <div id="adminLink" style="display:none">
+              <a href="/admin/dashboard.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;font-size:14px;color:var(--accent);font-weight:600;transition:all 0.2s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+            </div>
+            <div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">
+              <a onclick="logout()" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;font-size:14px;color:#ef4444;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main id="mainContent">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <i class="fas fa-sparkles"></i> New Collection 2026 &#8212; Handcrafted with Love
+          </div>
+          <h1>Unleash Your <span>Creative</span> Spirit</h1>
+          <p>Discover premium art supplies, handcrafted treasures, and traditional Indian art essentials. From professional-grade paints to exquisite handmade decor &#8212; everything an artist needs.</p>
+          <div class="hero-buttons">
+            <a href="/shop.html" class="btn btn-gold btn-lg"><i class="fas fa-palette"></i> Shop Now</a>
+            <a href="/shop.html?featured=true" class="btn btn-lg" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px)"><i class="fas fa-star"></i> Bestsellers</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong>10K+</strong>
+              <span>Happy Artists</span>
+            </div>
+            <div class="hero-stat">
+              <strong>500+</strong>
+              <span>Art Products</span>
+            </div>
+            <div class="hero-stat">
+              <strong>100%</strong>
+              <span>Handpicked Quality</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-image">
+          <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600" alt="Art Supplies">
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Bar -->
+    <section class="features-bar">
+      <div class="container">
+        <div class="features-grid">
+          <div class="feature-item">
+            <i class="fas fa-truck-fast"></i>
+            <div>
+              <h4>Free Shipping</h4>
+              <p>On orders over &#8377;999</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-hand-holding-heart"></i>
+            <div>
+              <h4>Handcrafted</h4>
+              <p>Artisan-made products</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-shield-check"></i>
+            <div>
+              <h4>Secure Payment</h4>
+              <p>Stripe & UPI accepted</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-headset"></i>
+            <div>
+              <h4>Artist Support</h4>
+              <p>Expert guidance always</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Shop by Category</h2>
+          <p>Explore our carefully curated collections of art supplies and handmade treasures</p>
+          <div class="divider"></div>
+        </div>
+        <div class="categories-grid" id="categoriesGrid">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="section" style="background: var(--bg)">
+      <div class="container">
+        <div class="section-header">
+          <h2>Bestselling Art Supplies</h2>
+          <p>Our most loved products handpicked by artists and art enthusiasts</p>
+          <div class="divider"></div>
+        </div>
+        <div class="products-grid" id="featuredGrid">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+        <div class="text-center mt-32">
+          <a href="/shop.html" class="btn btn-dark btn-lg">View All Products <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Artisan Story Section -->
+    <section class="section artisan-section">
+      <div class="container">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+          <div>
+            <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600" alt="Artisan at work" style="border-radius:var(--radius);box-shadow:var(--shadow-xl);width:100%;height:400px;object-fit:cover">
+          </div>
+          <div>
+            <div class="section-header" style="text-align:left;margin-bottom:24px">
+              <h2>Our Story</h2>
+              <div class="divider" style="margin:16px 0 0 0"></div>
+            </div>
+            <p style="color:var(--text-light);line-height:1.9;margin-bottom:20px">
+              Born from a passion for traditional Indian artistry and modern creativity, Your Brand bridges the gap between heritage craftsmanship and contemporary art. We curate the finest art supplies from trusted artisans and manufacturers.
+            </p>
+            <p style="color:var(--text-light);line-height:1.9;margin-bottom:28px">
+              Every product in our collection is handpicked for quality, sustainability, and artistic value. From professional-grade paints to exquisite handcrafted decor, we empower artists at every level to create their masterpieces.
+            </p>
+            <a href="/shop.html" class="btn btn-primary"><i class="fas fa-palette"></i> Explore Collection</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+      <div class="container">
+        <h2>Join Our Art Community</h2>
+        <p>Subscribe for exclusive offers, art tips, new arrivals, and creative inspiration delivered to your inbox</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Enter your email address">
+          <button class="btn btn-gold">Subscribe</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo"><i class="fas fa-store"></i> Your<span>Brand</span></div>
+          <p>Your premium destination for art supplies and handcrafted treasures. Empowering artists with quality materials since 2020.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;font-size:13px">
+            <span style="display:flex;align-items:center;gap:8px"><i class="fas fa-phone" style="color:var(--gold);width:16px"></i> +91 93739 25938</span>
+            <span style="display:flex;align-items:center;gap:8px"><i class="fas fa-envelope" style="color:var(--gold);width:16px"></i> hello@yourbrand.com</span>
+          </div>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="/shop.html">All Products</a></li>
+            <li><a href="/shop.html?featured=true">Bestsellers</a></li>
+            <li><a href="/shop.html?category=painting-supplies">Painting Supplies</a></li>
+            <li><a href="/shop.html?category=handmade-crafts">Handmade Crafts</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">Returns & Refunds</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Our Artisans</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Your Brand. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-pinterest-p"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCategories();
+      loadFeaturedProducts();
+    });
+
+    async function loadCategories() {
+      const categories = await api('/api/products/meta/categories');
+      const grid = document.getElementById('categoriesGrid');
+      grid.innerHTML = categories.map(c => `
+        <a href="/shop.html?category=${c.slug}" class="category-card">
+          <img src="${escapeHtml(c.image || 'https://via.placeholder.com/400')}" alt="${escapeHtml(c.name)}">
+          <div class="overlay">
+            <div>
+              <h3>${escapeHtml(c.name)}</h3>
+              <span>${c.product_count} Products</span>
+            </div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    async function loadFeaturedProducts() {
+      const data = await api('/api/products?featured=true&limit=8');
+      document.getElementById('featuredGrid').innerHTML = data.products.map(p => productCard(p)).join('');
+    }
+  </script>
+</body>
+</html>

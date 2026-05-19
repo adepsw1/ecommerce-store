@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Your Brand</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="logo"><i class="fas fa-store"></i> Your<span>Brand</span><small>Admin Panel</small></div>
+      <nav class="admin-nav">
+        <div class="nav-section">Main</div>
+        <a href="/admin/dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <div class="nav-section">Management</div>
+        <a href="#" onclick="showSection('products')"><i class="fas fa-box"></i> Products</a>
+        <a href="#" onclick="showSection('orders')"><i class="fas fa-shopping-cart"></i> Orders</a>
+        <a href="#" onclick="showSection('customers')"><i class="fas fa-users"></i> Customers</a>
+        <a href="#" onclick="showSection('categories')"><i class="fas fa-tags"></i> Categories</a>
+        <a href="#" onclick="showSection('coupons')"><i class="fas fa-ticket-alt"></i> Coupons</a>
+        <div class="nav-section">Other</div>
+        <a href="/"><i class="fas fa-store"></i> View Store</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+      <header class="admin-header">
+        <h1 id="adminPageTitle"><i class="fas fa-chart-pie"></i> Dashboard</h1>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:14px;color:var(--text-muted)" id="adminUserName"></span>
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-weight:700" id="adminAvatar"></div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <!-- Dashboard Section -->
+        <div id="section-dashboard">
+          <div class="stats-grid" id="statsGrid">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+            <div class="admin-card">
+              <div class="admin-card-header"><h2>Recent Orders</h2></div>
+              <table class="admin-table">
+                <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+                <tbody id="recentOrdersTable"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody>
+              </table>
+            </div>
+            <div class="admin-card">
+              <div class="admin-card-header"><h2>Top Products</h2></div>
+              <table class="admin-table">
+                <thead><tr><th>Product</th><th>Sold</th><th>Revenue</th></tr></thead>
+                <tbody id="topProductsTable"><tr><td colspan="3" class="loading"><div class="spinner"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="section-products" style="display:none">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2>Products</h2>
+              <button class="btn btn-primary btn-sm" onclick="showProductModal()"><i class="fas fa-plus"></i> Add Product</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="productsTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="section-orders" style="display:none">
+          <div class="admin-card">
+            <div class="admin-card-header"><h2>All Orders</h2></div>
+            <table class="admin-table">
+              <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="ordersTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Customers Section -->
+        <div id="section-customers" style="display:none">
+          <div class="admin-card">
+            <div class="admin-card-header"><h2>Customers</h2></div>
+            <table class="admin-table">
+              <thead><tr><th>Customer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Joined</th></tr></thead>
+              <tbody id="customersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div id="section-categories" style="display:none">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2>Categories</h2>
+              <button class="btn btn-primary btn-sm" onclick="showCategoryModal()"><i class="fas fa-plus"></i> Add Category</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th>Name</th><th>Slug</th><th>Actions</th></tr></thead>
+              <tbody id="categoriesTable"><tr><td colspan="3" class="loading"><div class="spinner"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Coupons Section -->
+        <div id="section-coupons" style="display:none">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2>Coupons</h2>
+              <button class="btn btn-primary btn-sm" onclick="showCouponModal()"><i class="fas fa-plus"></i> Add Coupon</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th>Code</th><th>Discount</th><th>Min Order</th><th>Uses</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="couponsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal-overlay hidden" id="productModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="productModalTitle">Add Product</h2>
+        <button class="close-btn" onclick="document.getElementById('productModal').classList.add('hidden')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm" onsubmit="saveProduct(event)">
+          <input type="hidden" id="productEditId">
+          <div class="form-group"><label>Name *</label><input type="text" id="pName" required></div>
+          <div class="form-group"><label>Description</label><textarea id="pDesc" rows="3"></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Price *</label><input type="number" id="pPrice" step="0.01" required></div>
+            <div class="form-group"><label>Compare Price</label><input type="number" id="pCompare" step="0.01"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Category</label><select id="pCategory"></select></div>
+            <div class="form-group"><label>Stock</label><input type="number" id="pStock" value="0"></div>
+          </div>
+          <div class="form-group"><label>Image URL</label><input type="url" id="pImage" placeholder="https://..."></div>
+          <div class="form-row">
+            <div class="form-group"><label>Status</label>
+              <select id="pStatus"><option value="active">Active</option><option value="draft">Draft</option><option value="archived">Archived</option></select>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;padding-top:24px;gap:8px">
+              <input type="checkbox" id="pFeatured"> <label for="pFeatured" style="margin:0">Featured</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Save Product</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Modal -->
+  <div class="modal-overlay hidden" id="categoryModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Category</h2>
+        <button class="close-btn" onclick="document.getElementById('categoryModal').classList.add('hidden')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="saveCategory(event)">
+          <div class="form-group"><label>Name *</label><input type="text" id="catName" required></div>
+          <div class="form-group"><label>Description</label><textarea id="catDesc" rows="2"></textarea></div>
+          <div class="form-group"><label>Image URL</label><input type="url" id="catImage" placeholder="https://..."></div>
+          <button type="submit" class="btn btn-primary btn-block">Save Category</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coupon Modal -->
+  <div class="modal-overlay hidden" id="couponModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Coupon</h2>
+        <button class="close-btn" onclick="document.getElementById('couponModal').classList.add('hidden')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="saveCoupon(event)">
+          <div class="form-group"><label>Code *</label><input type="text" id="cpCode" required style="text-transform:uppercase"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Discount Type</label>
+              <select id="cpType"><option value="percentage">Percentage (%)</option><option value="fixed">Fixed (\u20B9)</option></select>
+            </div>
+            <div class="form-group"><label>Value *</label><input type="number" id="cpValue" step="0.01" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Min Order (\u20B9)</label><input type="number" id="cpMinOrder" value="0" step="0.01"></div>
+            <div class="form-group"><label>Max Uses</label><input type="number" id="cpMaxUses" placeholder="Unlimited"></div>
+          </div>
+          <div class="form-group"><label>Expires At</label><input type="datetime-local" id="cpExpires"></div>
+          <button type="submit" class="btn btn-primary btn-block">Save Coupon</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Auth check — must have valid admin token
+    const token = localStorage.getItem('token');
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) {}
+
+    if (!token || !user || user.role !== 'admin') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/admin.html';
+    }
+
+    document.getElementById('adminUserName').textContent = user ? user.name : '';
+    document.getElementById('adminAvatar').textContent = user ? user.name.charAt(0).toUpperCase() : '';
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+
+    // --- Section Navigation ---
+    function showSection(name) {
+      document.querySelectorAll('[id^="section-"]').forEach(el => el.style.display = 'none');
+      document.getElementById('section-' + name).style.display = 'block';
+
+      document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+      event.target.closest('a').classList.add('active');
+
+      const titles = { dashboard: 'Dashboard', products: 'Products', orders: 'Orders', customers: 'Customers', categories: 'Categories', coupons: 'Coupons' };
+      const icons = { dashboard: 'chart-pie', products: 'box', orders: 'shopping-cart', customers: 'users', categories: 'tags', coupons: 'ticket-alt' };
+      document.getElementById('adminPageTitle').innerHTML = '<i class="fas fa-' + icons[name] + '"></i> ' + titles[name];
+
+      if (name === 'products') loadProducts();
+      else if (name === 'orders') loadOrders();
+      else if (name === 'customers') loadCustomers();
+      else if (name === 'categories') loadCategories();
+      else if (name === 'coupons') loadCoupons();
+      else loadDashboard();
+    }
+
+    // --- Dashboard ---
+    async function loadDashboard() {
+      const data = await api('/api/admin/stats');
+      if (data.error) return;
+
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-shopping-cart"></i></div><div><h3>${data.totalOrders}</h3><p>Total Orders</p></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-indian-rupee-sign"></i></div><div><h3>\u20B9${data.totalRevenue.toFixed(2)}</h3><p>Total Revenue</p></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div><h3>${data.totalCustomers}</h3><p>Customers</p></div></div>
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-box"></i></div><div><h3>${data.totalProducts}</h3><p>Products</p></div></div>
+      `;
+
+      document.getElementById('recentOrdersTable').innerHTML = data.recentOrders.length ? data.recentOrders.slice(0, 8).map(o => `
+        <tr>
+          <td><strong>#${o.id}</strong></td>
+          <td>${escapeHtml(o.customer_name)}</td>
+          <td>\u20B9${o.total.toFixed(2)}</td>
+          <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+        </tr>
+      `).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No orders yet</td></tr>';
+
+      document.getElementById('topProductsTable').innerHTML = data.topProducts.length ? data.topProducts.map(p => `
+        <tr>
+          <td><div class="product-cell"><img src="${escapeHtml(p.image || 'https://via.placeholder.com/44')}" alt="">${escapeHtml(p.name)}</div></td>
+          <td>${p.total_sold}</td>
+          <td>\u20B9${p.revenue.toFixed(2)}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No sales yet</td></tr>';
+    }
+
+    // --- Products ---
+    async function loadProducts() {
+      const data = await api('/api/admin/products');
+      document.getElementById('productsTable').innerHTML = data.length ? data.map(p => `
+        <tr>
+          <td><div class="product-cell"><img src="${escapeHtml(p.image || 'https://via.placeholder.com/44')}" alt="">${escapeHtml(p.name)}</div></td>
+          <td>\u20B9${p.price.toFixed(2)}</td>
+          <td>${p.stock}</td>
+          <td><span class="status-badge status-${p.status === 'active' ? 'delivered' : 'cancelled'}">${p.status}</span></td>
+          <td><div class="table-actions">
+            <button onclick="editProduct(${p.id})" title="Edit"><i class="fas fa-edit"></i></button>
+            <button class="delete" onclick="deleteProduct(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div></td>
+        </tr>
+      `).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">No products</td></tr>';
+    }
+
+    let allProducts = [];
+    async function showProductModal(product) {
+      document.getElementById('productEditId').value = product ? product.id : '';
+      document.getElementById('productModalTitle').textContent = product ? 'Edit Product' : 'Add Product';
+      document.getElementById('pName').value = product ? product.name : '';
+      document.getElementById('pDesc').value = product ? product.description || '' : '';
+      document.getElementById('pPrice').value = product ? product.price : '';
+      document.getElementById('pCompare').value = product ? product.compare_price || '' : '';
+      document.getElementById('pStock').value = product ? product.stock : 0;
+      document.getElementById('pImage').value = product ? product.image || '' : '';
+      document.getElementById('pStatus').value = product ? product.status : 'active';
+      document.getElementById('pFeatured').checked = product ? !!product.featured : false;
+
+      // Load categories
+      const cats = await api('/api/admin/categories');
+      document.getElementById('pCategory').innerHTML = '<option value="">Select...</option>' +
+        (Array.isArray(cats) ? cats.map(c => `<option value="${c.id}" ${product && product.category_id === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('') : '');
+
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    async function editProduct(id) {
+      const data = await api('/api/admin/products');
+      const product = data.find(p => p.id === id);
+      if (product) showProductModal(product);
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('productEditId').value;
+      const body = {
+        name: document.getElementById('pName').value,
+        description: document.getElementById('pDesc').value,
+        price: parseFloat(document.getElementById('pPrice').value),
+        compare_price: parseFloat(document.getElementById('pCompare').value) || null,
+        category_id: parseInt(document.getElementById('pCategory').value) || null,
+        stock: parseInt(document.getElementById('pStock').value) || 0,
+        image: document.getElementById('pImage').value,
+        status: document.getElementById('pStatus').value,
+        featured: document.getElementById('pFeatured').checked ? 1 : 0
+      };
+
+      const res = id
+        ? await api('/api/admin/products/' + id, 'PUT', body)
+        : await api('/api/admin/products', 'POST', body);
+
+      if (res.error) { showToast(res.error, 'error'); return; }
+      showToast(id ? 'Product updated!' : 'Product created!', 'success');
+      document.getElementById('productModal').classList.add('hidden');
+      loadProducts();
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Delete this product?')) return;
+      await api('/api/admin/products/' + id, 'DELETE');
+      showToast('Product deleted');
+      loadProducts();
+    }
+
+    // --- Orders ---
+    async function loadOrders() {
+      const data = await api('/api/admin/orders');
+      if (data.error || !data.orders) return;
+      document.getElementById('ordersTable').innerHTML = data.orders.length ? data.orders.map(o => `
+        <tr>
+          <td><strong>#${o.id}</strong><br><small style="color:var(--text-muted)">${new Date(o.created_at).toLocaleDateString()}</small></td>
+          <td>${escapeHtml(o.customer_name)}<br><small style="color:var(--text-muted)">${escapeHtml(o.customer_email)}</small></td>
+          <td>${o.items.length} item${o.items.length !== 1 ? 's' : ''}</td>
+          <td>\u20B9${o.total.toFixed(2)}</td>
+          <td><span class="status-badge status-${o.payment_status}">${o.payment_status}</span></td>
+          <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+          <td>
+            <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px">
+              ${['pending','processing','shipped','delivered','cancelled'].map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </td>
+        </tr>
+      `).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No orders</td></tr>';
+    }
+
+    async function updateOrderStatus(id, status) {
+      const res = await api('/api/admin/orders/' + id + '/status', 'PUT', { status });
+      if (res.error) showToast(res.error, 'error');
+      else showToast('Order status updated');
+    }
+
+    // --- Customers ---
+    async function loadCustomers() {
+      const data = await api('/api/admin/customers');
+      document.getElementById('customersTable').innerHTML = data.length ? data.map(c => `
+        <tr>
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td>${escapeHtml(c.email)}</td>
+          <td>${c.order_count}</td>
+          <td>\u20B9${c.total_spent.toFixed(2)}</td>
+          <td>${new Date(c.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">No customers</td></tr>';
+    }
+
+    // --- Categories ---
+    async function loadCategories() {
+      const data = await api('/api/admin/categories');
+      document.getElementById('categoriesTable').innerHTML = data.length ? data.map(c => `
+        <tr>
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td>${escapeHtml(c.slug)}</td>
+          <td><div class="table-actions"><button class="delete" onclick="deleteCategory(${c.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>
+        </tr>
+      `).join('') : '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No categories</td></tr>';
+    }
+
+    function showCategoryModal() { document.getElementById('categoryModal').classList.remove('hidden'); }
+
+    async function saveCategory(e) {
+      e.preventDefault();
+      const res = await api('/api/admin/categories', 'POST', {
+        name: document.getElementById('catName').value,
+        description: document.getElementById('catDesc').value,
+        image: document.getElementById('catImage').value
+      });
+      if (res.error) { showToast(res.error, 'error'); return; }
+      showToast('Category created!', 'success');
+      document.getElementById('categoryModal').classList.add('hidden');
+      document.getElementById('catName').value = '';
+      document.getElementById('catDesc').value = '';
+      document.getElementById('catImage').value = '';
+      loadCategories();
+    }
+
+    async function deleteCategory(id) {
+      if (!confirm('Delete this category?')) return;
+      await api('/api/admin/categories/' + id, 'DELETE');
+      showToast('Category deleted');
+      loadCategories();
+    }
+
+    // --- Coupons ---
+    async function loadCoupons() {
+      const data = await api('/api/admin/coupons');
+      document.getElementById('couponsTable').innerHTML = data.length ? data.map(c => `
+        <tr>
+          <td><strong>${escapeHtml(c.code)}</strong></td>
+          <td>${c.discount_type === 'percentage' ? c.discount_value + '%' : '\u20B9' + c.discount_value.toFixed(2)}</td>
+          <td>\u20B9${c.min_order.toFixed(2)}</td>
+          <td>${c.used_count}${c.max_uses ? '/' + c.max_uses : ''}</td>
+          <td><span class="status-badge ${c.active ? 'status-delivered' : 'status-cancelled'}">${c.active ? 'Active' : 'Inactive'}</span></td>
+          <td><div class="table-actions"><button class="delete" onclick="deleteCoupon(${c.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>
+        </tr>
+      `).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No coupons</td></tr>';
+    }
+
+    function showCouponModal() { document.getElementById('couponModal').classList.remove('hidden'); }
+
+    async function saveCoupon(e) {
+      e.preventDefault();
+      const res = await api('/api/admin/coupons', 'POST', {
+        code: document.getElementById('cpCode').value.toUpperCase(),
+        discount_type: document.getElementById('cpType').value,
+        discount_value: parseFloat(document.getElementById('cpValue').value),
+        min_order: parseFloat(document.getElementById('cpMinOrder').value) || 0,
+        max_uses: parseInt(document.getElementById('cpMaxUses').value) || null,
+        expires_at: document.getElementById('cpExpires').value || null
+      });
+      if (res.error) { showToast(res.error, 'error'); return; }
+      showToast('Coupon created!', 'success');
+      document.getElementById('couponModal').classList.add('hidden');
+      loadCoupons();
+    }
+
+    async function deleteCoupon(id) {
+      if (!confirm('Delete this coupon?')) return;
+      await api('/api/admin/coupons/' + id, 'DELETE');
+      showToast('Coupon deleted');
+      loadCoupons();
+    }
+  </script>
+</body>
+</html>

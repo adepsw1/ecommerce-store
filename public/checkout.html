@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Your Brand</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo"><i class="fas fa-store logo-icon"></i> Your<span>Brand</span></a>
+      <div class="nav-actions">
+        <a href="/cart.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+        <span style="font-size:14px;color:var(--text-muted)"><i class="fas fa-lock"></i> Secure Checkout</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="checkout-page">
+    <div class="container">
+      <h1 class="page-title">Checkout</h1>
+      <div class="checkout-grid">
+        <div>
+          <div class="admin-card">
+            <div class="admin-card-header"><h2>Shipping Information</h2></div>
+            <div style="padding:24px">
+              <form id="checkoutForm" onsubmit="placeOrder(event)">
+                <div class="form-group">
+                  <label>Full Name *</label>
+                  <input type="text" id="shippingName" required placeholder="Priya Sharma">
+                </div>
+                <div class="form-group">
+                  <label>Street Address *</label>
+                  <input type="text" id="shippingAddress" required placeholder="42, MG Road, Near City Mall">
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>City *</label>
+                    <input type="text" id="shippingCity" required placeholder="Chennai">
+                  </div>
+                  <div class="form-group">
+                    <label>State *</label>
+                    <input type="text" id="shippingState" required placeholder="Tamil Nadu">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>PIN Code *</label>
+                    <input type="text" id="shippingZip" required placeholder="600001" maxlength="6" oninput="lookupPincode(this.value, 'shippingCity', 'shippingState')">
+                  </div>
+                  <div class="form-group">
+                    <label>Country</label>
+                    <select id="shippingCountry">
+                      <option value="IN">India</option>
+                      <option value="US">United States</option>
+                      <option value="CA">Canada</option>
+                      <option value="UK">United Kingdom</option>
+                      <option value="AU">Australia</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Order Notes (optional)</label>
+                  <textarea id="orderNotes" rows="3" placeholder="Any special instructions for delivery..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="placeOrderBtn">
+                  <i class="fas fa-lock"></i> Place Order & Pay
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="cart-summary" id="orderSummary">
+            <h2>Order Summary</h2>
+            <div id="orderItems" class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay hidden" id="paymentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-credit-card"></i> Payment</h2>
+        <button class="close-btn" onclick="document.getElementById('paymentModal').classList.add('hidden')">&times;</button>
+      </div>
+      <div class="modal-body" id="paymentBody">
+        <div style="text-align:center;padding:20px">
+          <div style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border-radius:16px;padding:32px;margin-bottom:24px">
+            <div style="font-size:14px;opacity:0.7;margin-bottom:8px">Total Amount</div>
+            <div style="font-size:36px;font-weight:800" id="paymentAmount">\u20B90.00</div>
+          </div>
+          <div id="stripeElement" style="padding:16px;border:2px solid var(--border);border-radius:8px;margin-bottom:16px"></div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">
+            <i class="fas fa-info-circle"></i> Demo Mode: Click the button below to simulate a successful payment
+          </p>
+          <button class="btn btn-primary btn-block btn-lg" id="payBtn" onclick="confirmPayment()">
+            <i class="fas fa-lock"></i> Confirm Payment
+          </button>
+          <div style="display:flex;justify-content:center;gap:12px;margin-top:16px;opacity:0.4">
+            <i class="fab fa-cc-visa" style="font-size:28px"></i>
+            <i class="fab fa-cc-mastercard" style="font-size:28px"></i>
+            <i class="fab fa-cc-amex" style="font-size:28px"></i>
+            <i class="fab fa-cc-stripe" style="font-size:28px"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- First-Time Buyer Info Modal -->
+  <div class="modal-overlay hidden" id="infoModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-edit"></i> Complete Your Profile</h2>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted);margin-bottom:20px;font-size:14px">
+          We need a few details to deliver your order. This is a one-time setup.
+        </p>
+        <form id="infoForm" onsubmit="saveInfoAndContinue(event)">
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" id="infoPhone" required placeholder="+91 93739 25938" pattern="[\+]?[0-9\s\-]{10,15}">
+          </div>
+          <div class="form-group">
+            <label>Street Address *</label>
+            <input type="text" id="infoAddress" required placeholder="42, MG Road, Near City Mall">
+          </div>
+          <div class="form-group">
+            <label>PIN Code *</label>
+            <input type="text" id="infoZip" required placeholder="600001" pattern="[0-9]{6}" maxlength="6" oninput="lookupPincode(this.value, 'infoCity', 'infoState')">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="infoCity" readonly style="background:var(--bg)" placeholder="Auto-filled from PIN code">
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" id="infoState" readonly style="background:var(--bg)" placeholder="Auto-filled from PIN code">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg">
+            <i class="fas fa-check"></i> Save & Continue to Checkout
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let currentOrderId = null;
+    let orderTotal = 0;
+
+    document.addEventListener('DOMContentLoaded', loadCheckout);
+
+    async function loadCheckout() {
+      const token = localStorage.getItem('token');
+      if (!token) { window.location.href = '/login.html'; return; }
+
+      // Check if first-time buyer (no phone or address)
+      const profile = await api('/api/auth/profile');
+      if (profile && (!profile.phone || !profile.address)) {
+        document.getElementById('infoModal').classList.remove('hidden');
+      }
+
+      const cart = await api('/api/cart');
+      if (!cart.items || cart.items.length === 0) {
+        window.location.href = '/cart.html';
+        return;
+      }
+
+      const subtotal = cart.subtotal;
+      const tax = Math.round(subtotal * 0.05 * 100) / 100;
+      const shipping = subtotal >= 999 ? 0 : 99;
+      const total = (subtotal + tax + shipping).toFixed(2);
+
+      const orderItemsEl = document.getElementById('orderItems');
+      orderItemsEl.classList.remove('loading');
+      orderItemsEl.innerHTML = `
+        <div style="margin-bottom:20px">
+          ${cart.items.map(item => `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light)">
+              <img src="${escapeHtml(item.image || 'https://via.placeholder.com/50')}" style="width:50px;height:50px;border-radius:8px;object-fit:cover">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:600">${escapeHtml(item.name)}</div>
+                <div style="font-size:12px;color:var(--text-muted)">Qty: ${item.quantity}</div>
+              </div>
+              <div style="font-weight:600;white-space:nowrap">\u20B9${(item.price * item.quantity).toFixed(2)}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="summary-row"><span>Subtotal</span><span>\u20B9${subtotal.toFixed(2)}</span></div>
+        <div class="summary-row"><span>GST (5%)</span><span>\u20B9${tax.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? '<span style="color:var(--success)">FREE</span>' : '\u20B9' + shipping.toFixed(2)}</span></div>
+        <div class="summary-row total"><span>Total</span><span>\u20B9${total}</span></div>
+      `;
+
+      // Pre-fill shipping from profile
+      if (profile) {
+        if (profile.name) document.getElementById('shippingName').value = profile.name;
+        if (profile.address) document.getElementById('shippingAddress').value = profile.address;
+        if (profile.city) document.getElementById('shippingCity').value = profile.city;
+        if (profile.state) document.getElementById('shippingState').value = profile.state;
+        if (profile.zip) document.getElementById('shippingZip').value = profile.zip;
+        if (profile.country) document.getElementById('shippingCountry').value = profile.country;
+      }
+    }
+
+    async function saveInfoAndContinue(e) {
+      e.preventDefault();
+      const phone = document.getElementById('infoPhone').value.trim();
+      const address = document.getElementById('infoAddress').value.trim();
+      const zip = document.getElementById('infoZip').value.trim();
+      const city = document.getElementById('infoCity').value.trim();
+      const state = document.getElementById('infoState').value.trim();
+
+      if (!city || !state) {
+        showToast('Please enter a valid 6-digit PIN code to auto-fill city and state', 'error');
+        return;
+      }
+
+      const profile = await api('/api/auth/profile');
+      const res = await api('/api/auth/profile', 'PUT', {
+        name: profile.name,
+        phone, address, city, state, zip, country: 'IN'
+      });
+
+      if (res.error) {
+        showToast(res.error, 'error');
+        return;
+      }
+
+      showToast('Profile saved!', 'success');
+      document.getElementById('infoModal').classList.add('hidden');
+
+      // Pre-fill shipping form with saved data
+      document.getElementById('shippingAddress').value = address;
+      document.getElementById('shippingCity').value = city;
+      document.getElementById('shippingState').value = state;
+      document.getElementById('shippingZip').value = zip;
+    }
+
+    async function placeOrder(e) {
+      e.preventDefault();
+      const btn = document.getElementById('placeOrderBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+      const orderData = {
+        shipping_name: document.getElementById('shippingName').value,
+        shipping_address: document.getElementById('shippingAddress').value,
+        shipping_city: document.getElementById('shippingCity').value,
+        shipping_state: document.getElementById('shippingState').value,
+        shipping_zip: document.getElementById('shippingZip').value,
+        shipping_country: document.getElementById('shippingCountry').value,
+        notes: document.getElementById('orderNotes').value,
+        coupon_code: localStorage.getItem('coupon_code') || ''
+      };
+
+      const res = await api('/api/orders', 'POST', orderData);
+      if (res.error) {
+        showToast(res.error, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock"></i> Place Order & Pay';
+        return;
+      }
+
+      currentOrderId = res.orderId;
+      orderTotal = res.total;
+
+      // Create payment intent
+      const payment = await api('/api/payment/create-intent', 'POST', { orderId: currentOrderId });
+      document.getElementById('paymentAmount').textContent = '\u20B9' + orderTotal.toFixed(2);
+      document.getElementById('paymentModal').classList.remove('hidden');
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-lock"></i> Place Order & Pay';
+    }
+
+    async function confirmPayment() {
+      const btn = document.getElementById('payBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+
+      const res = await api('/api/payment/confirm', 'POST', { orderId: currentOrderId });
+      if (res.error) {
+        showToast(res.error, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock"></i> Confirm Payment';
+        return;
+      }
+
+      localStorage.removeItem('coupon_code');
+      localStorage.removeItem('coupon_discount');
+
+      document.getElementById('paymentBody').innerHTML = `
+        <div style="text-align:center;padding:40px 20px">
+          <div style="width:80px;height:80px;border-radius:50%;background:var(--success);color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px">
+            <i class="fas fa-check"></i>
+          </div>
+          <h2 style="margin-bottom:8px">Payment Successful!</h2>
+          <p style="color:var(--text-muted);margin-bottom:8px">Order #${currentOrderId} has been placed</p>
+          <p style="font-size:24px;font-weight:800;margin-bottom:24px">\u20B9${orderTotal.toFixed(2)}</p>
+          <p style="color:var(--text-muted);font-size:14px;margin-bottom:32px">A confirmation email has been sent to your inbox</p>
+          <div style="display:flex;gap:12px;justify-content:center">
+            <a href="/orders.html" class="btn btn-primary"><i class="fas fa-box"></i> View Orders</a>
+            <a href="/shop.html" class="btn btn-outline">Continue Shopping</a>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

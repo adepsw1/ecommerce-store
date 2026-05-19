@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product - Your Brand</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo"><i class="fas fa-store logo-icon"></i> Your<span>Brand</span></a>
+      <div class="nav-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search art supplies, paints, brushes..." onkeyup="handleSearch(event)">
+      </div>
+      <div class="nav-actions">
+        <a href="/cart.html" class="nav-btn" title="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="badge" id="cartBadge" style="display:none">0</span>
+        </a>
+        <div id="authButtons"><a href="/login.html" class="btn btn-outline btn-sm">Sign In</a></div>
+        <div id="userMenu" style="display:none">
+          <div class="nav-btn" onclick="toggleUserDropdown()" style="cursor:pointer"><i class="fas fa-user-circle"></i></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="product-detail">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="/">Home</a> <span class="sep">/</span> <a href="/shop.html">Shop</a> <span class="sep">/</span> <span id="breadcrumbProduct">Product</span>
+      </div>
+
+      <div class="product-detail-grid" id="productDetail">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Related Products -->
+      <section class="section">
+        <div class="section-header">
+          <h2>You May Also Like</h2>
+          <div class="divider"></div>
+        </div>
+        <div class="products-grid" id="relatedGrid"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>&copy; 2026 Your Brand. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let qty = 1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      if (slug) loadProduct(slug);
+    });
+
+    async function loadProduct(slug) {
+      const data = await api(`/api/products/${encodeURIComponent(slug)}`);
+      if (!data || !data.product) {
+        document.getElementById('productDetail').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><h3>Product not found</h3><a href="/shop.html" class="btn btn-primary">Back to Shop</a></div>';
+        return;
+      }
+      const p = data.product;
+      document.title = `${p.name} - Your Brand`;
+      document.getElementById('breadcrumbProduct').textContent = p.name;
+
+      const discount = p.compare_price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
+
+      document.getElementById('productDetail').innerHTML = `
+        <div class="product-gallery">
+          <div class="main-image">
+            <img src="${escapeHtml(p.image || 'https://via.placeholder.com/600')}" alt="${escapeHtml(p.name)}">
+          </div>
+        </div>
+        <div class="product-detail-info">
+          <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${escapeHtml(p.category_name || '')}</div>
+          <h1>${escapeHtml(p.name)}</h1>
+          <div class="product-rating" style="margin:12px 0">
+            <div class="stars">${renderStars(p.rating)}</div>
+            <span>${p.rating} (${p.review_count} reviews)</span>
+          </div>
+          <div class="detail-price">
+            <span class="current">\u20B9${p.price.toFixed(2)}</span>
+            ${p.compare_price ? `<span class="original">\u20B9${p.compare_price.toFixed(2)}</span><span class="save">${discount}% OFF</span>` : ''}
+          </div>
+          <p class="description">${escapeHtml(p.description || '')}</p>
+          <div style="margin-bottom:8px;font-size:14px;font-weight:600">Quantity</div>
+          <div class="quantity-selector">
+            <button onclick="changeQty(-1)">−</button>
+            <input type="number" id="qtyInput" value="1" min="1" max="${p.stock}" onchange="qty=Math.max(1,Math.min(${p.stock},parseInt(this.value)||1));this.value=qty">
+            <button onclick="changeQty(1)">+</button>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-primary btn-lg" onclick="addToCartDetail(${p.id})"><i class="fas fa-shopping-bag"></i> Add to Cart</button>
+            <button class="btn btn-outline btn-lg btn-icon"><i class="fas fa-heart"></i></button>
+          </div>
+          <div class="detail-meta">
+            <div><i class="fas fa-check-circle"></i> ${p.stock > 0 ? `In Stock (${p.stock} available)` : '<span style="color:var(--danger)">Out of Stock</span>'}</div>
+            <div><i class="fas fa-truck"></i> Free shipping on orders over \u20B9999</div>
+            <div><i class="fas fa-hand-holding-heart"></i> Handpicked Quality</div>
+            <div><i class="fas fa-rotate-left"></i> 30 Day Easy Returns</div>
+          </div>
+        </div>
+      `;
+
+      // Reviews
+      if (data.reviews && data.reviews.length > 0) {
+        const reviewsHtml = `
+          <section class="section" style="padding-top:0">
+            <h2 style="font-family:var(--font-heading);font-size:24px;margin-bottom:24px">Customer Reviews</h2>
+            ${data.reviews.map(r => `
+              <div style="padding:20px 0;border-bottom:1px solid var(--border-light)">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                  <strong>${escapeHtml(r.user_name)}</strong>
+                  <div class="stars" style="font-size:12px;color:var(--gold)">${renderStars(r.rating)}</div>
+                  <span style="font-size:12px;color:var(--text-muted)">${new Date(r.created_at).toLocaleDateString()}</span>
+                </div>
+                <p style="color:var(--text-light);font-size:14px">${escapeHtml(r.comment || '')}</p>
+              </div>
+            `).join('')}
+          </section>
+        `;
+        document.getElementById('productDetail').insertAdjacentHTML('afterend', reviewsHtml);
+      }
+
+      // Related
+      if (data.relatedProducts && data.relatedProducts.length > 0) {
+        document.getElementById('relatedGrid').innerHTML = data.relatedProducts.map(p => productCard(p)).join('');
+      }
+    }
+
+    function changeQty(delta) {
+      const input = document.getElementById('qtyInput');
+      const max = parseInt(input.max) || 99;
+      qty = Math.max(1, Math.min(max, qty + delta));
+      input.value = qty;
+    }
+
+    async function addToCartDetail(productId) {
+      const token = localStorage.getItem('token');
+      if (!token) { window.location.href = '/login.html'; return; }
+      const res = await api('/api/cart/add', 'POST', { productId, quantity: qty });
+      if (res.message) {
+        showToast('Added to cart!', 'success');
+        updateCartBadge();
+      } else {
+        showToast(res.error || 'Failed to add to cart', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

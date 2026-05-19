@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .admin-auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #16213e 100%);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-auth-page::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(192,57,43,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: floatOrb 8s ease-in-out infinite;
+    }
+    .admin-auth-page::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      left: -150px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(184,134,11,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: floatOrb 10s ease-in-out infinite reverse;
+    }
+    @keyframes floatOrb { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-20px); } }
+
+    .admin-auth-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 48px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+      animation: cardEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes cardEntry {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .admin-auth-card .shield-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--accent), #e74c3c);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 32px rgba(192,57,43,0.3);
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+    @keyframes iconPulse { 0%,100% { box-shadow: 0 8px 32px rgba(192,57,43,0.3); } 50% { box-shadow: 0 8px 48px rgba(192,57,43,0.5); } }
+
+    .admin-auth-card h1 {
+      font-family: var(--font-heading);
+      font-size: 26px;
+      color: white;
+      margin: 0 0 6px;
+      text-align: center;
+    }
+    .admin-auth-card .subtitle {
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+      margin: 0 0 32px;
+      text-align: center;
+    }
+
+    .admin-auth-card .form-group { margin-bottom: 20px; }
+    .admin-auth-card .form-group label {
+      display: block;
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.3px;
+    }
+    .admin-auth-card .input-wrap {
+      position: relative;
+    }
+    .admin-auth-card .input-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.25);
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+    .admin-auth-card .input-wrap input {
+      width: 100%;
+      padding: 13px 16px 13px 42px;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      background: rgba(255,255,255,0.04);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .admin-auth-card .input-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+    .admin-auth-card .input-wrap input:focus {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 0 0 4px rgba(192,57,43,0.12);
+    }
+    .admin-auth-card .input-wrap input:focus + i,
+    .admin-auth-card .input-wrap:focus-within i {
+      color: var(--accent);
+    }
+
+    .admin-auth-card .admin-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), #e74c3c);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-auth-card .admin-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .admin-auth-card .admin-submit:hover::before { opacity: 1; }
+    .admin-auth-card .admin-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(192,57,43,0.35);
+    }
+    .admin-auth-card .admin-submit:active { transform: translateY(0); }
+
+    .admin-auth-card .back-link {
+      text-align: center;
+      margin-top: 28px;
+    }
+    .admin-auth-card .back-link a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .admin-auth-card .back-link a:hover { color: rgba(255,255,255,0.7); }
+
+    .admin-auth-card .phone-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+    }
+    .admin-auth-card .phone-badge i { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="admin-auth-page">
+    <div class="admin-auth-card">
+      <div class="shield-icon">
+        <i class="fas fa-shield-alt" style="font-size:30px;color:white"></i>
+      </div>
+      <h1>Admin Portal</h1>
+      <p class="subtitle">Authorized personnel only</p>
+
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="adminEmail" required placeholder="Enter admin email">
+            <i class="fas fa-envelope"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="adminPassword" required placeholder="Enter password" minlength="6">
+            <i class="fas fa-lock"></i>
+          </div>
+        </div>
+        <button type="submit" class="admin-submit" id="adminLoginBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <div class="phone-badge">
+        <i class="fas fa-headset"></i> Need help? Call +91 93739 25938
+      </div>
+
+      <div class="back-link">
+        <a href="/"><i class="fas fa-arrow-left"></i> Back to Store</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // If already logged in as admin, go to dashboard
+    (function checkExistingLogin() {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user && user.role === 'admin') {
+            window.location.href = '/admin/dashboard.html';
+            return;
+          }
+        } catch(e) {}
+        // Not admin or bad data — clear it
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    })();
+
+    document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('adminLoginBtn');
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      if (!email || !password) {
+        showToast('Please enter email and password', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+      // Clear any stale auth data first
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          showToast(data.error || 'Login failed', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+          return;
+        }
+
+        if (data.user.role !== 'admin') {
+          showToast('Access denied. Admin credentials required.', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+          return;
+        }
+
+        // Store auth data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showToast('Welcome, ' + data.user.name + '!', 'success');
+
+        setTimeout(() => { window.location.href = '/admin/dashboard.html'; }, 600);
+      } catch (err) {
+        console.error('Login error:', err);
+        showToast('Network error. Please try again.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      }
+    }
+  </script>
+</body>
+</html>

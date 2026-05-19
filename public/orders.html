@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - Your Brand</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo"><i class="fas fa-store logo-icon"></i> Your<span>Brand</span></a>
+      <div class="nav-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search for products..." onkeyup="handleSearch(event)">
+      </div>
+      <div class="nav-actions">
+        <a href="/cart.html" class="nav-btn" title="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="badge" id="cartBadge" style="display:none">0</span>
+        </a>
+        <div id="authButtons"><a href="/login.html" class="btn btn-outline btn-sm">Sign In</a></div>
+        <div id="userMenu" style="display:none">
+          <div class="nav-btn" onclick="toggleUserDropdown()" style="cursor:pointer"><i class="fas fa-user-circle"></i></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="orders-page">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="/">Home</a> <span class="sep">/</span> <span>My Orders</span>
+      </div>
+
+      <h1 class="page-title"><i class="fas fa-box"></i> My Orders</h1>
+
+      <div id="ordersContent">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" style="margin-top:80px">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>&copy; 2026 Your Brand. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadOrders);
+
+    async function loadOrders() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const orders = await api('/api/orders');
+      const container = document.getElementById('ordersContent');
+
+      if (!orders || orders.error) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Failed to load orders</h3></div>';
+        return;
+      }
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-box"></i>
+            <h3>No orders yet</h3>
+            <p>Start shopping to see your orders here</p>
+            <a href="/shop.html" class="btn btn-primary"><i class="fas fa-shopping-bag"></i> Start Shopping</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = orders.map(order => `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <span class="order-id">Order #${order.id}</span>
+              <span style="margin-left:16px;font-size:13px;color:var(--text-muted)">${new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <span class="status-badge status-${order.payment_status}">${order.payment_status}</span>
+              <span class="status-badge status-${order.status}">${order.status}</span>
+            </div>
+          </div>
+          <div class="order-body">
+            <div class="order-items">
+              ${order.items.map(item => `
+                <div class="order-item">
+                  <img src="${escapeHtml(item.product_image || 'https://via.placeholder.com/60')}" alt="${escapeHtml(item.product_name)}">
+                  <div style="flex:1">
+                    <div style="font-weight:600">${escapeHtml(item.product_name)}</div>
+                    <div style="font-size:13px;color:var(--text-muted)">Qty: ${item.quantity} &times; \u20B9${item.price.toFixed(2)}</div>
+                  </div>
+                  <div style="font-weight:600">\u20B9${(item.price * item.quantity).toFixed(2)}</div>
+                </div>
+              `).join('')}
+            </div>
+            ${order.shipping_name ? `
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);font-size:13px;color:var(--text-light)">
+                <strong>Ships to:</strong> ${escapeHtml(order.shipping_name)}, ${escapeHtml(order.shipping_address)}, ${escapeHtml(order.shipping_city)}, ${escapeHtml(order.shipping_state)} ${escapeHtml(order.shipping_zip)}
+              </div>
+            ` : ''}
+            <div class="order-total">
+              <span style="font-size:14px;color:var(--text-muted);margin-right:8px">Total:</span> \u20B9${order.total.toFixed(2)}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
