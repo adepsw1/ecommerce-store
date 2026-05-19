@@ -18,11 +18,11 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://accounts.google.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://accounts.google.com", "https://apis.google.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://accounts.google.com", "https://apis.google.com", "https://www.gstatic.com", "https://www.google.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      frameSrc: ["https://js.stripe.com", "https://accounts.google.com"],
+      frameSrc: ["https://js.stripe.com", "https://accounts.google.com", "https://www.google.com", "https://yourbrand-f45af.firebaseapp.com"],
       imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://plus.unsplash.com", "https://via.placeholder.com", "https://lh3.googleusercontent.com", "https://picsum.photos", "https://fastly.picsum.photos", "https://i.imgur.com"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://accounts.google.com", "https://api.postalpincode.in"]
+      connectSrc: ["'self'", "https://api.stripe.com", "https://accounts.google.com", "https://api.postalpincode.in", "https://www.googleapis.com", "https://securetoken.googleapis.com", "https://identitytoolkit.googleapis.com"]
     }
   }
 }));
