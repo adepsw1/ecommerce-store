@@ -173,7 +173,7 @@ router.post('/login', (req, res) => {
 // Get profile
 router.get('/profile', authenticate, (req, res) => {
   const db = getDb();
-  const user = db.prepare('SELECT id, name, email, role, phone, address, city, state, zip, country, created_at FROM users WHERE id = ?').get(req.user.id);
+  const user = db.prepare('SELECT id, name, email, role, phone, phone_verified, address, city, state, zip, country, created_at FROM users WHERE id = ?').get(req.user.id);
   res.json(user);
 });
 
@@ -184,6 +184,39 @@ router.put('/profile', authenticate, (req, res) => {
   db.prepare('UPDATE users SET name=?, phone=?, address=?, city=?, state=?, zip=?, country=? WHERE id=?')
     .run(name, phone, address, city, state, zip, country, req.user.id);
   res.json({ message: 'Profile updated' });
+});
+
+// --- Phone OTP (server-side, no Firebase needed) ---
+const otpStore = new Map(); // userId -> { code, phone, expires }
+
+router.post('/send-otp', authenticate, (req, res) => {
+  const { phone } = req.body;
+  if (!phone || phone.replace(/\D/g, '').length < 10) {
+    return res.status(400).json({ error: 'Valid phone number required' });
+  }
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  otpStore.set(req.user.id, { code, phone, expires: Date.now() + 5 * 60 * 1000 });
+  // In production, integrate an SMS gateway (Twilio, MSG91, etc.)
+  // For demo, return the OTP in response
+  console.log(`[OTP] User ${req.user.id} -> ${phone}: ${code}`);
+  res.json({ message: 'OTP sent', demo_otp: code });
+});
+
+router.post('/verify-otp', authenticate, (req, res) => {
+  const { otp } = req.body;
+  const entry = otpStore.get(req.user.id);
+  if (!entry) return res.status(400).json({ error: 'No OTP requested. Send OTP first.' });
+  if (Date.now() > entry.expires) {
+    otpStore.delete(req.user.id);
+    return res.status(400).json({ error: 'OTP expired. Please request a new one.' });
+  }
+  if (entry.code !== otp) {
+    return res.status(400).json({ error: 'Invalid OTP. Please try again.' });
+  }
+  otpStore.delete(req.user.id);
+  const db = getDb();
+  db.prepare('UPDATE users SET phone = ?, phone_verified = 1 WHERE id = ?').run(entry.phone, req.user.id);
+  res.json({ message: 'Phone verified successfully' });
 });
 
 module.exports = router;

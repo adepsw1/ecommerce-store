@@ -26,6 +26,7 @@ function initDatabase() {
       avatar TEXT,
       google_id TEXT,
       phone TEXT,
+      phone_verified INTEGER DEFAULT 0,
       address TEXT,
       city TEXT,
       state TEXT,
@@ -127,6 +128,12 @@ function initDatabase() {
       active INTEGER DEFAULT 1
     );
   `);
+
+  // Migration: add phone_verified column if missing
+  const cols = db.prepare("PRAGMA table_info(users)").all();
+  if (!cols.find(c => c.name === 'phone_verified')) {
+    db.exec("ALTER TABLE users ADD COLUMN phone_verified INTEGER DEFAULT 0");
+  }
 
   // Seed admin user
   const adminExists = db.prepare('SELECT id FROM users WHERE role = ?').get('admin');

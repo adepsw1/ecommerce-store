@@ -6,8 +6,6 @@
   <title>Checkout - Your Brand</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
   <div class="toast-container" id="toastContainer"></div>
@@ -137,7 +135,6 @@
                 <i class="fas fa-paper-plane"></i> Send OTP
               </button>
             </div>
-            <div id="recaptchaContainer"></div>
           </div>
           <div class="form-group" id="otpGroup" style="display:none">
             <label>Enter OTP *</label>
@@ -190,9 +187,9 @@
       const token = localStorage.getItem('token');
       if (!token) { window.location.href = '/login.html'; return; }
 
-      // Check if first-time buyer (no phone or address)
+      // Check if first-time buyer (no verified phone or no address)
       const profile = await api('/api/auth/profile');
-      if (profile && (!profile.phone || !profile.address)) {
+      if (profile && (!profile.phone_verified || !profile.address)) {
         document.getElementById('infoModal').classList.remove('hidden');
       }
 
@@ -348,62 +345,39 @@
       `;
     }
 
-    // Firebase Phone OTP
+    // Phone OTP (server-side)
     let phoneVerified = false;
-    let confirmationResult = null;
-
-    firebase.initializeApp({
-      apiKey: "AIzaSyCtCpg4cLJzLCqmMX1N5ktEBLjEbK-s8cs",
-      authDomain: "yourbrand-f45af.firebaseapp.com",
-      projectId: "yourbrand-f45af",
-      storageBucket: "yourbrand-f45af.firebasestorage.app",
-      messagingSenderId: "509488439127",
-      appId: "1:509488439127:web:46c2e58fa23d06d909e812"
-    });
-
-    window.recaptchaVerifier = null;
-
-    function setupRecaptcha() {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptchaContainer', {
-          size: 'invisible',
-          callback: () => {}
-        });
-      }
-    }
 
     async function sendOTP() {
       const phone = document.getElementById('infoPhone').value.trim();
-      if (!phone || phone.length < 10) {
+      if (!phone || phone.replace(/\D/g, '').length < 10) {
         showToast('Please enter a valid phone number with country code (e.g. +919373925938)', 'error');
         return;
       }
 
-      // Ensure number starts with +
       const formattedPhone = phone.startsWith('+') ? phone : '+91' + phone.replace(/\s|-/g, '');
-
       const btn = document.getElementById('sendOtpBtn');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
       try {
-        setupRecaptcha();
-        confirmationResult = await firebase.auth().signInWithPhoneNumber(formattedPhone, window.recaptchaVerifier);
-        
+        const res = await api('/api/auth/send-otp', 'POST', { phone: formattedPhone });
+        if (res.error) throw new Error(res.error);
+
         document.getElementById('otpGroup').style.display = 'block';
         document.getElementById('otpStatus').textContent = 'OTP sent to ' + formattedPhone;
         document.getElementById('infoPhone').readOnly = true;
         btn.innerHTML = '<i class="fas fa-check"></i> Sent';
-        showToast('OTP sent to ' + formattedPhone, 'success');
+
+        // Demo mode: show OTP in toast (in production, SMS is sent)
+        if (res.demo_otp) {
+          showToast('Demo OTP: ' + res.demo_otp, 'success');
+        } else {
+          showToast('OTP sent to ' + formattedPhone, 'success');
+        }
       } catch (err) {
-        console.error('OTP error:', err);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
-        // Reset recaptcha on error
-        if (window.recaptchaVerifier) {
-          window.recaptchaVerifier.clear();
-          window.recaptchaVerifier = null;
-        }
         showToast(err.message || 'Failed to send OTP. Try again.', 'error');
       }
     }
@@ -420,7 +394,9 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
       try {
-        await confirmationResult.confirm(otp);
+        const res = await api('/api/auth/verify-otp', 'POST', { otp });
+        if (res.error) throw new Error(res.error);
+
         phoneVerified = true;
         document.getElementById('otpGroup').style.display = 'none';
         document.getElementById('phoneVerified').style.display = 'block';
@@ -429,7 +405,7 @@
       } catch (err) {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-check-circle"></i> Verify';
-        showToast('Invalid OTP. Please try again.', 'error');
+        showToast(err.message || 'Invalid OTP. Please try again.', 'error');
       }
     }
   </script>
